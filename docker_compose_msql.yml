@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: 'mysql:latest'
+    ports:
+      - '3306:3306'
+    environments:
+      MYSQL_ROOT_PASSWORD: examplepassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+networks:
+  default:
+    name: my-main-net
+    external: true
