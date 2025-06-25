@@ -12,7 +12,7 @@ installApps()
     echo ""
     
     ISACT=$( (sudo systemctl is-active docker ) 2>&1 )
-    ISCOMP=$( (docker-compose -v ) 2>&1 )
+    ISCOMP=$( (docker compose -v ) 2>&1 )
 
     #### Try to check whether docker is installed and running - don't prompt if it is
     if [[ "$ISACT" != "active" ]]; then
@@ -24,18 +24,25 @@ installApps()
     fi
 
     if [[ "$ISCOMP" == *"command not found"* ]]; then
-        read -rp "Docker-Compose (y/n): " DCOMP
+        read -rp "Docker Compose (y/n): " DCOMP
+        echo ""
+        echo ""
     else
-        echo "Docker-compose appears to be installed."
+        echo "Docker Compose appears to be installed."
         echo ""
         echo ""
     fi
 
-    read -rp "NGinX Proxy Manager (y/n): " NPM
-    read -rp "Navidrome (y/n): " NAVID
-    read -rp "Portainer-CE (y/n): " PTAIN
-    read -rp "Remotely - Remote Desktop Support (y/n): " REMOTELY
-    read -rp "Guacamole - Remote Desktop Protocol in the Browser (y/n): " GUAC
+    read -rp "Do you want to choose any Docker based applications to install as well? (y/n): " INSTALLAPPS
+    echo ""
+    echo ""
+
+    if [[ "$INSTALLAPPS" == [yY] ]]; then
+        read -rp "NGinX Proxy Manager (y/n): " NPM
+        read -rp "Navidrome (y/n): " NAVID
+        read -rp "Portainer-CE (y/n): " PTAIN
+        read -rp "Beszel Monitoring Hub - a lightweight system mointoring solution (y/n): " BESZEL
+    fi
 
     if [[ "$PTAIN" == [yY] ]]; then
         echo ""
@@ -288,8 +295,7 @@ startInstall()
             echo "    3. Installing Docker-CE (Community Edition)..."
             sleep 2s
 
-            sudo zypper -n install docker-compose >> ~/docker-script-install.log 2>&1
-            sudo zypper -n remove docker-compose
+            curl -fsSL https://get.docker.com | sh >> ~/docker-script-install.log 2>&1
             echo "Giving the Docker service time to start..."
         
             sudo systemctl start docker >> ~/docker-script-install.log 2>&1
@@ -333,9 +339,9 @@ startInstall()
         echo "######     Install Docker-Compose     ######"
         echo "############################################"
 
-        # install docker-compose
+        # install docker compose
         echo ""
-        echo "    1. Installing Docker-Compose..."
+        echo "    1. Installing Docker Compose..."
         echo ""
         echo ""
         sleep 2s
@@ -374,29 +380,6 @@ startInstall()
         fi
 
         ######################################
-        ###     Install Debian / Ubuntu    ###
-        ######################################        
-        
-        if [[ "$OS" == "2" || "$OS" == "3" || "$OS" == "4" ]]; then
-            VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
-		    sudo curl -SL https://github.com/docker/compose/releases/download/$VERSION/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-            #sudo curl -L "https://github.com/docker/compose/releases/download/$(curl https://github.com/docker/compose/releases | grep -m1 '<a href="/docker/compose/releases/download/' | grep -o 'v[0-9:].[0-9].[0-9]')/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-            sleep 2
-            sudo chmod +x /usr/local/bin/docker-compose
-        fi
-        ######################################
-        ###        Install CentOS 7 or 8   ###
-        ######################################
-
-        if [[ "$OS" == "1" ]]; then
-            VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
-		    sudo curl -SL https://github.com/docker/compose/releases/download/$VERSION/docker-compose-linux-x86_64 -o /usr/bin/docker-compose >> ~/docker-script-install.log 2>&1
-
-            sudo chmod +x /usr/bin/docker-compose >> ~/docker-script-install.log 2>&1
-        fi
-
-        ######################################
         ###        Install Arch Linux      ###
         ######################################
 
@@ -404,21 +387,10 @@ startInstall()
             sudo pacman -Sy docker-compose --noconfirm > ~/docker-script-install.log 2>&1
         fi
 
-        ######################################
-        ###        Install Open Suse       ###
-        ######################################
-
-        if [[ "$OS" == "6" ]]; then
-            VERSION=$(curl --silent https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')
-		    sudo curl -SL https://github.com/docker/compose/releases/download/$VERSION/docker-compose-linux-x86_64 -o /usr/bin/docker-compose >> ~/docker-script-install.log 2>&1
-
-            sudo chmod +x /usr/bin/docker-compose >> ~/docker-script-install.log 2>&1
-        fi
-
         echo ""
 
         echo "      - Docker Compose Version is now: " 
-        DOCKCOMPV=$(docker-compose --version)
+        DOCKCOMPV=$(docker compose version)
         echo "        "${DOCKCOMPV}
         echo ""
         echo ""
@@ -477,9 +449,9 @@ startInstall()
         echo ""
 
         if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
+          docker compose up -d
         else
-          sudo docker-compose up -d
+          sudo docker compose up -d
         fi
 
         echo "    3. You can find NGinX Proxy Manager files at ./docker/nginx-proxy-manager"
@@ -513,9 +485,9 @@ startInstall()
         echo ""
 
         if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
+          docker compose up -d
         else
-          sudo docker-compose up -d
+          sudo docker compose up -d
         fi
 
         echo ""
@@ -544,9 +516,9 @@ startInstall()
         echo ""
         
         if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
+          docker compose up -d
         else
-          sudo docker-compose up -d
+          sudo docker compose up -d
         fi
 
         echo ""
@@ -576,9 +548,9 @@ startInstall()
         echo ""
 
         if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
+          docker compose up -d
         else
-          sudo docker-compose up -d
+          sudo docker compose up -d
         fi
 
         echo "    3. You can find your Navidrome files in ./docker/navidrome"
@@ -590,79 +562,38 @@ startInstall()
         cd
     fi
 
-    if [[ "$REMOTELY" == [yY] ]]; then
+    if [[ "$BESZEL" == [yY] ]]; then
         echo "##########################################"
-        echo "###          Install Remotely          ###"
+        echo "###         Installing Beszel          ###"
         echo "##########################################"
     
-        # pull a remotely docker-compose file from gitlab
-        echo "    1. Pulling a default Remotely docker-compose.yml file."
+        # pull an uptime kuma docker-compose file from gitlab
+        echo ""
+        echo ""
+        echo "    1. Pulling a the Uptime Kuma docker-compose.yml file."
 
-        mkdir -p docker/remotely
-        cd docker/remotely
+        mkdir -p docker/beszel
+        cd docker/beszel
 
-        curl https://gitlab.com/bmcgonag/docker_installs/-/raw/main/docker_compose_remotely.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
+        curl https://gitlab.com/bmcgonag/docker_installs/-/raw/main/docker_compose_beszel.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
 
         echo ""
         echo ""
-        echo "    2. Running the docker-compose.yml to pull and start Remotely..."
+        echo "    2. Running the docker-compose.yml to pull and start Uptime Kuma..."
         echo ""
 
         if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
+          docker compose up -d
         else
-          sudo docker-compose up -d
+          sudo docker compose up -d
         fi
 
-        echo "    3. You can find the Remotely folder at ~/docker/remotely..."
-        echo ""
-        echo "      Navigate to your server hostname / IP address on port 8188 to setup"
-        echo "      your new Remotely installation."
-        echo ""
-        echo "      You will likely want to create a reverse proxy entry in NGinX Proxy Manager"
-        echo "      for your new Remotely server.  If so, also make sure to set the"
-        echo "      'Require https' option in the Remotely Settings."
-        echo ""
-        echo ""
-        sleep 3s
-        cd
-    fi
-
-    if [[ "$GUAC" == [yY] ]]; then
-        echo "##########################################"
-        echo "###         Installing Guacamole       ###"
-        echo "##########################################"
-    
-        # pull a guacamole docker-compose file from gitlab
-        echo "    1. Pulling a default Guacamole docker-compose.yml file."
-
-        mkdir -p docker/guacamole
-        cd docker/guacamole
-
-        curl https://gitlab.com/bmcgonag/docker_installs/-/raw/main/docker_compose_guacamole.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
-
-        echo ""
-        echo ""
-        echo "    2. Running the docker-compose.yml to pull and start Guacamole..."
-        echo ""
-
-        if [[ "$OS" == "1" ]]; then
-          docker-compose up -d
-        else
-          sudo docker-compose up -d
-        fi
-
-        echo "    3. You can find the Guacamole folder at ~/docker/guacamole..."
+        echo "    3. You can find the Beszel folder at ~/docker/beszel..."
         echo ""
         echo "      You can now navigate in your browser to yoru server IP at"
-        echo "      port number 8080 to reach the Guacamole login page."
+        echo "      port number 8090 to reach the Uptime Kuma login page."
         echo ""
-        echo "      Use the default credentials to loging the first time:"
-        echo "          username: guacadmin"
-        echo "          password: guacadmin"
-        echo ""
-        echo "      It is highly recommended that you create a new admin user, and"
-        echo "      delete / disable the default user."
+        echo "      You'll create your initial user as an admin on the first login."
         echo ""
         echo ""
         sleep 3s
