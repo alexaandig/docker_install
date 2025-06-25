@@ -456,7 +456,7 @@ startInstall()
 
         echo "    3. You can find NGinX Proxy Manager files at ./docker/nginx-proxy-manager"
         echo ""
-        echo "    Navigate to your server hostname / IP address on port 81 to setup"
+        echo "    Navigate to your server hostname / IP address on port 8100 to setup"
         echo "    NGinX Proxy Manager admin account."
         echo ""
         echo "    The default login credentials for NGinX Proxy Manager are:"
