@@ -39,9 +39,8 @@ installApps()
 
     if [[ "$INSTALLAPPS" == [yY] ]]; then
         read -rp "NGinX Proxy Manager (y/n): " NPM
-        read -rp "Navidrome (y/n): " NAVID
         read -rp "Portainer-CE (y/n): " PTAIN
-        read -rp "Beszel Monitoring Hub - a lightweight system mointoring solution (y/n): " BESZEL
+        read -rp "Beszel Monitoring Hub (y/n): " BESZEL
     fi
 
     if [[ "$PTAIN" == [yY] ]]; then
@@ -531,37 +530,6 @@ startInstall()
         cd
     fi
 
-    if [[ "$NAVID" == [yY] ]]; then
-        echo "###########################################"
-        echo "###        Installing Navidrome         ###"
-        echo "###########################################"
-        echo ""
-        echo "    1. Preparing to install Navidrome"
-
-        mkdir -p docker/navidrome
-        cd docker/navidrome
-
-        curl https://raw.githubusercontent.com/alexaandig/docker_install/refs/heads/main/docker_compose_navidrome.yml -o docker-compose.yml >> ~/docker-script-install.log 2>&1
-
-        echo "    2. Running the docker-compose.yml to install and start Navidrome"
-        echo ""
-        echo ""
-
-        if [[ "$OS" == "1" ]]; then
-          docker compose up -d
-        else
-          sudo docker compose up -d
-        fi
-
-        echo "    3. You can find your Navidrome files in ./docker/navidrome"
-        echo ""
-        echo "    Navigate to your server hostname / IP address on port 4533 to setup"
-        echo "    your new Navidrome admin account."
-        echo ""      
-        sleep 3s
-        cd
-    fi
-
     if [[ "$BESZEL" == [yY] ]]; then
         echo "##########################################"
         echo "###         Installing Beszel          ###"
@@ -619,9 +587,9 @@ echo ""
 echo ""
 echo "    From some basic information on your system, you appear to be running: "
 echo "        --  OS Name        " $(lsb_release -i)
-echo "        --  Description        " $(lsb_release -d)
-echo "        --  OS Version        " $(lsb_release -r)
-echo "        --  Code Name        " $(lsb_release -c)
+echo "        --  Description    " $(lsb_release -d)
+echo "        --  OS Version     " $(lsb_release -r)
+echo "        --  Code Name      " $(lsb_release -c)
 echo ""
 echo "------------------------------------------------------"
 echo ""
